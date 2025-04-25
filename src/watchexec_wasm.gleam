@@ -12,7 +12,7 @@ pub fn main() {
     command_list -> {
       let command = string.join(command_list, with: " ")
 
-      use cwd <- promise.await(shell("pwd"))
+      use cwd <- promise.await(quiet_shell("pwd"))
       use filename, event <- watch_directory(string.trim(cwd))
       case should_watch_changes(filename) && is_file_related_to_programming(filename), event {
         True, "rename" ->{
@@ -31,10 +31,13 @@ pub fn main() {
 @external(javascript, "./shell.mjs", "shell")
 fn shell(cmd: String) -> Promise(String)
 
+@external(javascript, "./shell.mjs", "quiet_shell")
+fn quiet_shell(cmd: String) -> Promise(String)
+
 @external(javascript, "./watcher.mjs", "watchDirectory")
 fn watch_directory(
   dir: String,
-  callback fun: fn(String, String) -> a,
+  callback fun: fn(String, String) -> Nil,
 ) -> Promise(b)
 
 fn log(log: String) -> Promise(Nil) {
