@@ -1,8 +1,8 @@
-import gleam/result
-import gleam/list
 import argv
 import gleam/io
 import gleam/javascript/promise.{type Promise}
+import gleam/list
+import gleam/result
 import gleam/string
 
 pub fn main() {
@@ -13,14 +13,19 @@ pub fn main() {
       let command = string.join(command_list, with: " ")
 
       use cwd <- promise.await(quiet_shell("pwd"))
+      shell(command)
       use filename, event <- watch_directory(string.trim(cwd))
-      case should_watch_changes(filename) && is_file_related_to_programming(filename), event {
-        True, "rename" ->{
+      case
+        should_watch_changes(filename)
+        && is_file_related_to_programming(filename),
+        event
+      {
+        True, "rename" -> {
           log("[Change detected. Rerunning command]")
           shell(command)
           Nil
         }
-        _, _ ->{
+        _, _ -> {
           Nil
         }
       }
@@ -45,7 +50,7 @@ fn log(log: String) -> Promise(Nil) {
 }
 
 fn file_extension(filename: String) -> String {
-  filename 
+  filename
   |> string.split(on: ".")
   |> list.last()
   |> result.unwrap("")
@@ -55,31 +60,9 @@ fn file_extension(filename: String) -> String {
 fn is_file_related_to_programming(filename: String) -> Bool {
   // TODO probably getting .gitignore files and dirs is better than this naive solution
   [
-    "dockerfile",
-    "c",
-    "cpp",
-    "cc",
-    "cxx",
-    "h",
-    "hpp",
-    "cs",
-    "java",
-    "js",
-    "mjs",
-    "ts",
-    "mts",
-    "jsx",
-    "tsx",
-    "ex",
-    "exs",
-    "lua",
-    "py",
-    "php",
-    "gleam",
-    "rb",
-    "kts",
-    "json",
-    "toml",
+    "dockerfile", "c", "cpp", "cc", "cxx", "h", "hpp", "cs", "java", "js", "mjs",
+    "ts", "mts", "jsx", "tsx", "ex", "exs", "lua", "py", "php", "gleam", "rb",
+    "kts", "json", "toml",
   ]
   |> list.contains(file_extension(filename))
 }
@@ -87,8 +70,8 @@ fn is_file_related_to_programming(filename: String) -> Bool {
 fn should_watch_changes(filename: String) -> Bool {
   let contains = string.contains(filename, _)
 
-  !contains("build") &&
-  !contains("dist" ) &&
-  !contains("target" ) &&
-  !contains("bin" )
+  !contains("build")
+  && !contains("dist")
+  && !contains("target")
+  && !contains("bin")
 }
