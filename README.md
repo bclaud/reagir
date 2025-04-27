@@ -2,6 +2,8 @@
 
 - [ ] ignore all files on .gitignore on cwd
 - [ ] understand why colors are gone ;-;
+- [ ] build with nix
+    - missing gleam dependencies atm
 
 # Optional
 - [ ] run on beam with ATOM VM?
