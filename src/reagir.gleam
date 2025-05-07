@@ -15,20 +15,7 @@ pub fn main() {
       use cwd <- promise.await(quiet_shell("pwd"))
       shell(command)
       use filename, event <- watch_directory(string.trim(cwd))
-      case
-        should_watch_changes(filename)
-        && is_file_related_to_programming(filename),
-        event
-      {
-        True, "rename" -> {
-          log("[Change detected. Rerunning command]")
-          shell(command)
-          Nil
-        }
-        _, _ -> {
-          Nil
-        }
-      }
+      run_on_watchable_event(filename, event, fn() { shell(command) })
     }
   }
 }
@@ -55,6 +42,26 @@ fn file_extension(filename: String) -> String {
   |> list.last()
   |> result.unwrap("")
   |> string.trim()
+}
+
+fn run_on_watchable_event(
+  filename: String,
+  event: String,
+  fun: fn() -> Promise(String),
+) -> Nil {
+  case
+    should_watch_changes(filename) && is_file_related_to_programming(filename),
+    event
+  {
+    True, "rename" -> {
+      log("[Change detected. Rerunning command]")
+      fun()
+      Nil
+    }
+    _, _ -> {
+      Nil
+    }
+  }
 }
 
 fn is_file_related_to_programming(filename: String) -> Bool {
